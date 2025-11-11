@@ -1,0 +1,16 @@
+{
+  "name": "mcp-xiaozhi-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server/server.js",
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "4.19.2",
+    "rss-parser": "3.12.0",
+    "cors": "2.8.5",
+    "morgan": "1.10.0"
+  }
+}

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MCP Xiaozhi Web · Tin Thanh Niên & Zing MP3</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>MCP Xiaozhi Web</h1>
+    <p>Đọc tin Thanh Niên và mở nhạc Zing MP3</p>
+  </header>
+
+  <main>
+    <section id="news">
+      <h2>Tin Thanh Niên</h2>
+      <div class="controls">
+        <label for="category">Chuyên mục</label>
+        <select id="category"></select>
+
+        <label for="limit">Số tin</label>
+        <input id="limit" type="number" min="1" max="50" value="20" />
+
+        <button id="loadNews">Tải tin</button>
+      </div>
+      <ul id="newsList"></ul>
+    </section>
+
+    <section id="music">
+      <h2>Âm nhạc · Zing MP3</h2>
+      <div class="controls">
+        <label for="songQuery">Tìm bài hát trên Zing</label>
+        <input id="songQuery" type="text" placeholder="Ví dụ: Sơn Tùng - Lạc Trôi" />
+        <button id="openZingSearch">Mở Zing</button>
+      </div>
+
+      <div class="player">
+        <p>Phát URL MP3 hợp lệ (nếu bạn có đường dẫn hợp pháp).</p>
+        <input id="mp3Url" type="text" placeholder="https://example.com/song.mp3" />
+        <div class="player-buttons">
+          <button id="playAudio">Phát</button>
+          <button id="pauseAudio">Tạm dừng</button>
+          <button id="stopAudio">Dừng</button>
+        </div>
+        <audio id="audio" controls preload="none"></audio>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Nhạc Zing mở trên trang chính thức.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
