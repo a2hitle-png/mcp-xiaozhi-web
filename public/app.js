@@ -4,11 +4,9 @@ const loadNewsBtn = document.getElementById("loadNews");
 const newsListEl = document.getElementById("newsList");
 
 const wsStatusEl = document.getElementById("wsStatus");
-const unlockAutoplayBtn = document.getElementById("unlockAutoplay");
-const scEmbedContainerEl = document.getElementById("scEmbedContainer");
+const searchResultsEl = document.getElementById("searchResults");
+const articleContentEl = document.getElementById("articleContent");
 
-let scWidget = null;
-let autoplayUnlocked = false;
 let ws = null;
 
 // Load categories
@@ -69,70 +67,6 @@ function sanitize(str) {
 // Events
 loadNewsBtn.addEventListener("click", loadNews);
 
-// SoundCloud URL validation
-function isValidSoundCloudUrl(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.hostname === "soundcloud.com" || 
-           parsed.hostname === "www.soundcloud.com" ||
-           parsed.hostname.endsWith(".soundcloud.com");
-  } catch {
-    return false;
-  }
-}
-
-// SoundCloud player functions
-function createSoundCloudIframe(trackUrl) {
-  const iframe = document.createElement("iframe");
-  iframe.id = "scPlayer";
-  iframe.width = "100%";
-  iframe.height = "166";
-  iframe.setAttribute("allow", "autoplay");
-  iframe.style.border = "none";
-  iframe.style.borderRadius = "8px";
-  const encodedUrl = encodeURIComponent(trackUrl);
-  iframe.src = `https://w.soundcloud.com/player/?url=${encodedUrl}&auto_play=true&show_artwork=true`;
-  return iframe;
-}
-
-function loadSoundCloudTrack(trackUrl) {
-  // Validate SoundCloud URL
-  if (!isValidSoundCloudUrl(trackUrl)) {
-    console.error("Invalid SoundCloud URL:", trackUrl);
-    return;
-  }
-  
-  scEmbedContainerEl.innerHTML = "";
-  const iframe = createSoundCloudIframe(trackUrl);
-  scEmbedContainerEl.appendChild(iframe);
-
-  // Initialize SoundCloud Widget API
-  if (typeof SC !== "undefined" && SC.Widget) {
-    scWidget = SC.Widget(iframe);
-    scWidget.bind(SC.Widget.Events.READY, () => {
-      if (autoplayUnlocked) {
-        scWidget.play();
-      }
-    });
-    scWidget.bind(SC.Widget.Events.ERROR, (e) => {
-      console.error("SoundCloud error:", e);
-    });
-  }
-}
-
-// Unlock autoplay button
-unlockAutoplayBtn.addEventListener("click", () => {
-  autoplayUnlocked = true;
-  unlockAutoplayBtn.disabled = true;
-  unlockAutoplayBtn.textContent = "Autoplay đã mở khoá";
-  unlockAutoplayBtn.style.opacity = "0.6";
-  
-  // If there's already a widget, try to play
-  if (scWidget) {
-    scWidget.play();
-  }
-});
-
 // WebSocket connection
 function connectWebSocket() {
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -172,34 +106,68 @@ function connectWebSocket() {
 }
 
 function handleWebSocketMessage(data) {
-  // Handle play command with SoundCloud URL
-  if (data.action === "play" && data.url) {
-    loadSoundCloudTrack(data.url);
+  // Handle search results from WebSocket
+  if (data.type === "search_results") {
+    renderSearchResults(data.q, data.results || []);
   }
-  // Handle pause command
-  else if (data.action === "pause" && scWidget) {
-    scWidget.pause();
+  // Handle article text (full)
+  else if (data.type === "article_text") {
+    renderArticleContent(data.title, data.contentText);
   }
-  // Handle resume command
-  else if (data.action === "resume" && scWidget) {
-    scWidget.play();
+  // Handle article chunk (partial)
+  else if (data.type === "article_chunk") {
+    appendArticleChunk(data.title, data.chunk, data.chunkIndex, data.totalChunks);
   }
-  // Handle stop command
-  else if (data.action === "stop" && scWidget) {
-    scWidget.pause();
-    scWidget.seekTo(0);
-  }
-}
-
-// Check for sc= query parameter
-function checkQueryParams() {
-  const params = new URLSearchParams(window.location.search);
-  const scUrl = params.get("sc");
-  if (scUrl) {
-    loadSoundCloudTrack(scUrl);
+  // Handle errors
+  else if (data.type === "error") {
+    renderError(data.op, data.message);
   }
 }
 
-// Initialize WebSocket and check query params
+function renderSearchResults(query, results) {
+  if (!results.length) {
+    searchResultsEl.innerHTML = `<p>Không tìm thấy kết quả cho: "${sanitize(query)}"</p>`;
+    return;
+  }
+  
+  let html = `<p>Kết quả tìm kiếm: "${sanitize(query)}"</p>`;
+  results.forEach((item, index) => {
+    html += `
+      <div class="result-item">
+        <div class="result-title">${index + 1}. ${sanitize(item.title)}</div>
+        <div class="result-snippet">${sanitize(item.snippet)}</div>
+        <div class="result-link"><a href="${item.link}" target="_blank" rel="noopener">${sanitize(item.displayLink)}</a></div>
+      </div>
+    `;
+  });
+  searchResultsEl.innerHTML = html;
+}
+
+function renderArticleContent(title, contentText) {
+  articleContentEl.innerHTML = `
+    <h4>${sanitize(title)}</h4>
+    <p>${sanitize(contentText)}</p>
+  `;
+}
+
+function appendArticleChunk(title, chunk, chunkIndex, totalChunks) {
+  if (chunkIndex === 0) {
+    articleContentEl.innerHTML = `<h4>${sanitize(title)}</h4><p></p>`;
+  }
+  const p = articleContentEl.querySelector("p");
+  if (p) {
+    p.textContent += chunk;
+  }
+}
+
+function renderError(op, message) {
+  const errorHtml = `<p style="color: #ef4444;">Lỗi (${sanitize(op)}): ${sanitize(message)}</p>`;
+  if (op === "search_google") {
+    searchResultsEl.innerHTML = errorHtml;
+  } else {
+    articleContentEl.innerHTML = errorHtml;
+  }
+}
+
+// Initialize WebSocket
 connectWebSocket();
-checkQueryParams();
