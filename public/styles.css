@@ -114,4 +114,28 @@ audio { width: 100%; margin-top: 8px; }
   border-radius: 8px;
 }
 
+/* Google CSE search block */
+.search-block {
+  grid-column: 1 / -1;
+}
+.search-block .gsc-control-cse {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+.search-block .gsc-input-box {
+  background: #101318 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+.search-block .gsc-input {
+  color: var(--text) !important;
+}
+.search-block .gsc-search-button-v2 {
+  background: var(--accent) !important;
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 8px 14px !important;
+}
+
 footer { border-top: 1px solid var(--border); }
