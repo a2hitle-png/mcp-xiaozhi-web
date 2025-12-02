@@ -76,6 +76,30 @@ app.get("/api/search/google", async (req, res) => {
   }
 });
 
+// Legacy alias for ESP32 firmware (expects /api/google-search?query=...&limit=...)
+app.get("/api/google-search", async (req, res) => {
+  try {
+    if (!isGoogleSearchConfigured()) {
+      return res.status(503).json({
+        error: "Google Search not configured. Please set GOOGLE_CSE_API_KEY and GOOGLE_CSE_CX environment variables."
+      });
+    }
+
+    const query = (req.query.query || req.query.q || "").trim();
+    if (!query) {
+      return res.status(400).json({ error: "Missing query parameter 'query'" });
+    }
+
+    const limitRaw = parseInt(req.query.limit || req.query.topK || "5", 10);
+    const limit = Math.min(Math.max(limitRaw || 5, 1), 10);
+    const results = await searchGoogle(query, limit);
+    res.json({ items: results });
+  } catch (err) {
+    console.error("Google Search alias error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Article extraction API endpoint
 app.get("/api/article/extract", async (req, res) => {
   try {
