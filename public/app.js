@@ -4,11 +4,7 @@ const loadNewsBtn = document.getElementById("loadNews");
 const newsListEl = document.getElementById("newsList");
 
 const wsStatusEl = document.getElementById("wsStatus");
-const unlockAutoplayBtn = document.getElementById("unlockAutoplay");
-const scEmbedContainerEl = document.getElementById("scEmbedContainer");
 
-let scWidget = null;
-let autoplayUnlocked = false;
 let ws = null;
 
 // Load categories
@@ -69,69 +65,19 @@ function sanitize(str) {
 // Events
 loadNewsBtn.addEventListener("click", loadNews);
 
-// SoundCloud URL validation
-function isValidSoundCloudUrl(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.hostname === "soundcloud.com" || 
-           parsed.hostname === "www.soundcloud.com" ||
-           parsed.hostname.endsWith(".soundcloud.com");
-  } catch {
-    return false;
+// Google CSE search function
+function executeGoogleSearch(query) {
+  if (typeof google !== "undefined" && google.search && google.search.cse && google.search.cse.element) {
+    const element = google.search.cse.element.getElement("gcs1");
+    if (element) {
+      element.execute(query);
+    } else {
+      console.error("Google CSE element 'gcs1' not found");
+    }
+  } else {
+    console.error("Google CSE not loaded");
   }
 }
-
-// SoundCloud player functions
-function createSoundCloudIframe(trackUrl) {
-  const iframe = document.createElement("iframe");
-  iframe.id = "scPlayer";
-  iframe.width = "100%";
-  iframe.height = "166";
-  iframe.setAttribute("allow", "autoplay");
-  iframe.style.border = "none";
-  iframe.style.borderRadius = "8px";
-  const encodedUrl = encodeURIComponent(trackUrl);
-  iframe.src = `https://w.soundcloud.com/player/?url=${encodedUrl}&auto_play=true&show_artwork=true`;
-  return iframe;
-}
-
-function loadSoundCloudTrack(trackUrl) {
-  // Validate SoundCloud URL
-  if (!isValidSoundCloudUrl(trackUrl)) {
-    console.error("Invalid SoundCloud URL:", trackUrl);
-    return;
-  }
-  
-  scEmbedContainerEl.innerHTML = "";
-  const iframe = createSoundCloudIframe(trackUrl);
-  scEmbedContainerEl.appendChild(iframe);
-
-  // Initialize SoundCloud Widget API
-  if (typeof SC !== "undefined" && SC.Widget) {
-    scWidget = SC.Widget(iframe);
-    scWidget.bind(SC.Widget.Events.READY, () => {
-      if (autoplayUnlocked) {
-        scWidget.play();
-      }
-    });
-    scWidget.bind(SC.Widget.Events.ERROR, (e) => {
-      console.error("SoundCloud error:", e);
-    });
-  }
-}
-
-// Unlock autoplay button
-unlockAutoplayBtn.addEventListener("click", () => {
-  autoplayUnlocked = true;
-  unlockAutoplayBtn.disabled = true;
-  unlockAutoplayBtn.textContent = "Autoplay đã mở khoá";
-  unlockAutoplayBtn.style.opacity = "0.6";
-  
-  // If there's already a widget, try to play
-  if (scWidget) {
-    scWidget.play();
-  }
-});
 
 // WebSocket connection
 function connectWebSocket() {
@@ -172,34 +118,11 @@ function connectWebSocket() {
 }
 
 function handleWebSocketMessage(data) {
-  // Handle play command with SoundCloud URL
-  if (data.action === "play" && data.url) {
-    loadSoundCloudTrack(data.url);
-  }
-  // Handle pause command
-  else if (data.action === "pause" && scWidget) {
-    scWidget.pause();
-  }
-  // Handle resume command
-  else if (data.action === "resume" && scWidget) {
-    scWidget.play();
-  }
-  // Handle stop command
-  else if (data.action === "stop" && scWidget) {
-    scWidget.pause();
-    scWidget.seekTo(0);
+  // Handle search_google command
+  if (data.type === "search_google" && data.q) {
+    executeGoogleSearch(data.q);
   }
 }
 
-// Check for sc= query parameter
-function checkQueryParams() {
-  const params = new URLSearchParams(window.location.search);
-  const scUrl = params.get("sc");
-  if (scUrl) {
-    loadSoundCloudTrack(scUrl);
-  }
-}
-
-// Initialize WebSocket and check query params
+// Initialize WebSocket
 connectWebSocket();
-checkQueryParams();
