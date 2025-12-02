@@ -116,18 +116,41 @@ stopAudioBtn.addEventListener("click", () => {
   audioEl.currentTime = 0;
 });
 
+// SoundCloud widget configuration
+const SOUNDCLOUD_WIDGET_CONFIG = {
+  color: "%23ff5500",
+  auto_play: false,
+  hide_related: false,
+  show_comments: true,
+  show_user: true,
+  show_reposts: false,
+  show_teaser: true,
+  visual: true
+};
+
 // SoundCloud embedding
 embedSoundCloudBtn.addEventListener("click", () => {
   const url = soundCloudUrlEl.value.trim();
   if (!url) return alert("Nhập URL SoundCloud hợp lệ (ví dụ: https://soundcloud.com/artist/track)");
   
-  // Validate SoundCloud URL pattern
-  if (!url.includes("soundcloud.com/")) {
+  // Validate SoundCloud URL with proper URL parsing
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return alert("URL không hợp lệ. Vui lòng nhập URL đúng định dạng.");
+  }
+  
+  // Ensure the hostname is exactly soundcloud.com or a subdomain
+  if (parsedUrl.hostname !== "soundcloud.com" && !parsedUrl.hostname.endsWith(".soundcloud.com")) {
     return alert("URL phải là đường dẫn SoundCloud (ví dụ: https://soundcloud.com/artist/track)");
   }
   
   const encodedUrl = encodeURIComponent(url);
-  const widgetUrl = `https://w.soundcloud.com/player/?url=${encodedUrl}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
+  const configParams = Object.entries(SOUNDCLOUD_WIDGET_CONFIG)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
+  const widgetUrl = `https://w.soundcloud.com/player/?url=${encodedUrl}&${configParams}`;
   
   soundCloudContainerEl.innerHTML = `
     <iframe 

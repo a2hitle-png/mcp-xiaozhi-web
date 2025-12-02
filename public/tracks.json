@@ -4,20 +4,20 @@
     "title": "Demo Track 1",
     "artist": "Demo Artist",
     "url": "https://example.com/demo-track-1.mp3",
-    "license": "Creative Commons Attribution (CC BY 4.0) - Replace with your licensed audio URL"
+    "license": "PLACEHOLDER - Replace this URL with a legally hosted audio file (e.g., Creative Commons licensed audio)"
   },
   {
     "id": "2",
     "title": "Demo Track 2",
     "artist": "Demo Artist",
     "url": "https://example.com/demo-track-2.mp3",
-    "license": "Creative Commons Attribution (CC BY 4.0) - Replace with your licensed audio URL"
+    "license": "PLACEHOLDER - Replace this URL with a legally hosted audio file (e.g., Creative Commons licensed audio)"
   },
   {
     "id": "3",
     "title": "Demo Track 3",
     "artist": "Demo Artist",
     "url": "https://example.com/demo-track-3.mp3",
-    "license": "Creative Commons Attribution (CC BY 4.0) - Replace with your licensed audio URL"
+    "license": "PLACEHOLDER - Replace this URL with a legally hosted audio file (e.g., Creative Commons licensed audio)"
   }
 ]
