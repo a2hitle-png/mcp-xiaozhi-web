@@ -34,16 +34,6 @@ app.get("/api/news", async (req, res) => {
   }
 });
 
-// Zing MP3 search helper: tạo URL tìm kiếm chính thức
-app.get("/api/zing/search", (req, res) => {
-  const { q = "" } = req.query;
-  const query = encodeURIComponent(q.trim());
-  if (!query) return res.status(400).json({ error: "Missing query" });
-  // Zing không có API công khai: trả về URL tìm kiếm để mở tab
-  const url = `https://zingmp3.vn/tim-kiem?q=${query}`;
-  res.json({ url });
-});
-
 // MCP-friendly endpoints (tuỳ chọn)
 app.get("/mcp/news/:category", async (req, res) => {
   try {
@@ -55,13 +45,6 @@ app.get("/mcp/news/:category", async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: "MCP news failed" });
   }
-});
-
-app.get("/mcp/zing/search", (req, res) => {
-  const { q = "" } = req.query;
-  if (!q.trim()) return res.status(400).json({ error: "Missing query" });
-  const url = `https://zingmp3.vn/tim-kiem?q=${encodeURIComponent(q.trim())}`;
-  res.json({ url });
 });
 
 app.listen(PORT, () => {
