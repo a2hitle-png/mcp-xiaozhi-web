@@ -84,4 +84,16 @@ button:hover { filter: brightness(1.05); }
 .player { margin-top: 12px; }
 .player-buttons { display: flex; gap: 8px; margin-top: 8px; }
 audio { width: 100%; margin-top: 8px; }
+.status-message {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 8px 0;
+  min-height: 1.2em;
+}
+.status-message.error { color: #ef4444; }
+.status-message.success { color: var(--accent); }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 footer { border-top: 1px solid var(--border); }

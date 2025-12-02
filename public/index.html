@@ -34,6 +34,7 @@
         <input id="songQuery" type="text" placeholder="Ví dụ: Sơn Tùng - Lạc Trôi" />
         <button id="openZingSearch">Mở Zing</button>
       </div>
+      <div id="zingStatus" class="status-message"></div>
 
       <div class="player">
         <p>Phát URL MP3 hợp lệ (nếu bạn có đường dẫn hợp pháp).</p>
@@ -43,7 +44,8 @@
           <button id="pauseAudio">Tạm dừng</button>
           <button id="stopAudio">Dừng</button>
         </div>
-        <audio id="audio" controls preload="none"></audio>
+        <div id="audioStatus" class="status-message"></div>
+        <audio id="audio" controls preload="metadata" crossorigin="anonymous"></audio>
       </div>
     </section>
   </main>
