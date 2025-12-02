@@ -56,8 +56,6 @@ async function loadZingPlaylists() {
       const opt = document.createElement("option");
       opt.value = playlist.src;
       opt.textContent = playlist.title;
-      opt.dataset.id = playlist.id;
-      opt.dataset.kind = playlist.kind;
       zingPlaylistSelectEl.appendChild(opt);
     });
   } catch (e) {
@@ -139,6 +137,20 @@ stopAudioBtn.addEventListener("click", () => {
 zingPlaylistSelectEl.addEventListener("change", () => {
   const src = zingPlaylistSelectEl.value;
   if (!src) {
+    zingContainerEl.innerHTML = "";
+    return;
+  }
+  
+  // Validate Zing MP3 embed URL
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(src);
+  } catch {
+    zingContainerEl.innerHTML = "";
+    return;
+  }
+  
+  if (parsedUrl.hostname !== "zingmp3.vn" || !parsedUrl.pathname.startsWith("/embed/album/")) {
     zingContainerEl.innerHTML = "";
     return;
   }
