@@ -1,42 +1,18 @@
 [
   {
-    "id": "vov1",
-    "name": "VOV1 - Thời sự Chính trị",
-    "description": "Tin tức, chính trị và thời sự tổng hợp từ Đài Tiếng nói Việt Nam.",
-    "location": "Toàn quốc",
-    "streamUrl": "https://stream.vovmedia.vn/vovlive/vov1.sdp_aac/playlist.m3u8",
-    "website": "https://vov.vn"
+    "id": "voh925",
+    "name": "VOH-M FM 92 - 92.5 MHz",
+    "description": "Kênh Văn hóa Mê Kông phát thanh các chương trình thời sự, văn hóa và đời sống khu vực Nam Bộ.",
+    "location": "Nam Bộ",
+    "streamUrl": "https://strm.voh.com.vn/radio/channel6/playlist.m3u8",
+    "website": "https://voh.com.vn/radio-kenh-fm-925-fm925mhz.html"
   },
   {
-    "id": "vov2",
-    "name": "VOV2 - Văn hóa Xã hội",
-    "description": "Giáo dục, khoa học, văn hóa và đời sống xã hội.",
-    "location": "Toàn quốc",
-    "streamUrl": "https://stream.vovmedia.vn/vovlive/vov2.sdp_aac/playlist.m3u8",
-    "website": "https://vov.vn"
-  },
-  {
-    "id": "vov3",
-    "name": "VOV3 - Âm nhạc Giải trí",
-    "description": "Các chương trình âm nhạc và giải trí 24/7.",
-    "location": "Toàn quốc",
-    "streamUrl": "https://stream.vovmedia.vn/vovlive/vov3.sdp_aac/playlist.m3u8",
-    "website": "https://vov.vn"
-  },
-  {
-    "id": "vovgthn",
-    "name": "VOV Giao thông Hà Nội",
-    "description": "Thông tin giao thông trực tiếp tại khu vực Hà Nội và miền Bắc.",
-    "location": "Hà Nội",
-    "streamUrl": "https://stream.vovmedia.vn/vovlive/vovgthn.sdp_aac/playlist.m3u8",
-    "website": "https://vovgiaothong.vn"
-  },
-  {
-    "id": "vovgthcm",
-    "name": "VOV Giao thông TP.HCM",
-    "description": "Cập nhật giao thông và đời sống đô thị khu vực phía Nam.",
+    "id": "voh999",
+    "name": "VOH FM 99.9 MHz",
+    "description": "Âm nhạc giải trí, thông tin đô thị và tương tác trực tiếp với thính giả TP.HCM.",
     "location": "TP.HCM",
-    "streamUrl": "https://stream.vovmedia.vn/vovlive/vovgthcm.sdp_aac/playlist.m3u8",
-    "website": "https://vovgiaothong.vn"
+    "streamUrl": "https://strm.voh.com.vn/radio/channel3/playlist.m3u8",
+    "website": "https://voh.com.vn/radio-kenh-fm-999-fm999mhz.html"
   }
 ]

@@ -89,6 +89,13 @@ Danh sách đài được lưu tại `public/radios.json`. Mỗi phần tử g�
 - Bạn có thể thêm/bớt đài bằng cách cập nhật file JSON rồi redeploy. Không cần chỉnh code frontend/backend.
 - Hãy đảm bảo đường dẫn stream hợp pháp và cho phép phát ở client (CORS).
 
+### Đài đang được cấu hình sẵn
+
+- `VOH-M FM 92 - 92.5 MHz` (`https://strm.voh.com.vn/radio/channel6/playlist.m3u8`)
+- `VOH FM 99.9 MHz` (`https://strm.voh.com.vn/radio/channel3/playlist.m3u8`)
+
+> Các đài VOV trước đây đã được loại bỏ do không còn phát ổn định trong môi trường hiện tại. Khi có nguồn stream hoạt động, chỉ cần thêm lại vào `radios.json`.
+
 ## Kiểm thử với ESP32
 
 ESP32 gửi qua WebSocket:
