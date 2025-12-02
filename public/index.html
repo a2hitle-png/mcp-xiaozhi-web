@@ -47,11 +47,15 @@
         <audio id="audio" controls preload="none"></audio>
       </div>
 
-      <div class="soundcloud-embed">
-        <p>Nhúng SoundCloud:</p>
-        <input id="soundCloudUrl" type="text" placeholder="https://soundcloud.com/artist/track" />
-        <button id="embedSoundCloud">Nhúng SoundCloud</button>
-        <div id="soundCloudContainer"></div>
+      <div class="zing-embed">
+        <p>Nhúng Zing MP3 Playlist:</p>
+        <div class="controls">
+          <label for="zingPlaylistSelect">Chọn playlist</label>
+          <select id="zingPlaylistSelect">
+            <option value="">-- Chọn playlist --</option>
+          </select>
+        </div>
+        <div id="zingContainer"></div>
       </div>
     </section>
   </main>

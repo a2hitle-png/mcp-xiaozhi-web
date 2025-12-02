@@ -84,10 +84,9 @@ button:hover { filter: brightness(1.05); }
 .player { margin-top: 12px; }
 .player-buttons { display: flex; gap: 8px; margin-top: 8px; }
 audio { width: 100%; margin-top: 8px; }
-.soundcloud-embed { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-.soundcloud-embed p { margin: 0 0 8px 0; }
-.soundcloud-embed input { flex: 1; }
-.soundcloud-embed button { margin-left: 8px; }
-#soundCloudContainer { margin-top: 12px; }
-#soundCloudContainer iframe { border-radius: 8px; }
+.zing-embed { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.zing-embed p { margin: 0 0 8px 0; }
+.zing-embed .controls { margin-bottom: 12px; }
+#zingContainer { margin-top: 12px; }
+#zingContainer iframe { border-radius: 8px; }
 footer { border-top: 1px solid var(--border); }
