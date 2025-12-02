@@ -89,4 +89,29 @@ audio { width: 100%; margin-top: 8px; }
 .zing-embed .controls { margin-bottom: 12px; }
 #zingContainer { margin-top: 12px; }
 #zingContainer iframe { border-radius: 8px; }
+
+/* WebSocket status */
+.ws-status {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.ws-status.connected {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--accent);
+}
+.ws-status.disconnected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* SoundCloud embed container */
+#scEmbedContainer {
+  margin-top: 12px;
+}
+#scEmbedContainer iframe {
+  border-radius: 8px;
+}
+
 footer { border-top: 1px solid var(--border); }
