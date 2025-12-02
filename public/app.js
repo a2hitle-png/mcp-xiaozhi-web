@@ -69,6 +69,18 @@ function sanitize(str) {
 // Events
 loadNewsBtn.addEventListener("click", loadNews);
 
+// SoundCloud URL validation
+function isValidSoundCloudUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname === "soundcloud.com" || 
+           parsed.hostname === "www.soundcloud.com" ||
+           parsed.hostname.endsWith(".soundcloud.com");
+  } catch {
+    return false;
+  }
+}
+
 // SoundCloud player functions
 function createSoundCloudIframe(trackUrl) {
   const iframe = document.createElement("iframe");
@@ -84,6 +96,12 @@ function createSoundCloudIframe(trackUrl) {
 }
 
 function loadSoundCloudTrack(trackUrl) {
+  // Validate SoundCloud URL
+  if (!isValidSoundCloudUrl(trackUrl)) {
+    console.error("Invalid SoundCloud URL:", trackUrl);
+    return;
+  }
+  
   scEmbedContainerEl.innerHTML = "";
   const iframe = createSoundCloudIframe(trackUrl);
   scEmbedContainerEl.appendChild(iframe);

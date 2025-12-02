@@ -2,7 +2,7 @@ import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import { PORT, THANHNIEN_RSS } from "./config.js";
 import { fetchFeed } from "./rss.js";
 
@@ -70,7 +70,7 @@ wss.on("connection", (ws) => {
       JSON.parse(message);
       // Broadcast to all other clients
       for (const client of clients) {
-        if (client !== ws && client.readyState === 1) {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
           client.send(message);
         }
       }
