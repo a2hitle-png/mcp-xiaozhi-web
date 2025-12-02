@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCP Xiaozhi Web · Tin Thanh Niên & Zing MP3</title>
+  <title>MCP Xiaozhi Web · Tin Thanh Niên & Trình phát nhạc</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>MCP Xiaozhi Web</h1>
-    <p>Đọc tin Thanh Niên và mở nhạc Zing MP3</p>
+    <p>Đọc tin Thanh Niên và trình phát nhạc hợp pháp</p>
   </header>
 
   <main>
@@ -28,15 +28,16 @@
     </section>
 
     <section id="music">
-      <h2>Âm nhạc · Zing MP3</h2>
+      <h2>Trình phát nhạc</h2>
       <div class="controls">
-        <label for="songQuery">Tìm bài hát trên Zing</label>
-        <input id="songQuery" type="text" placeholder="Ví dụ: Sơn Tùng - Lạc Trôi" />
-        <button id="openZingSearch">Mở Zing</button>
+        <label for="trackSelect">Chọn bài hát từ playlist</label>
+        <select id="trackSelect">
+          <option value="">-- Chọn bài hát --</option>
+        </select>
       </div>
 
       <div class="player">
-        <p>Phát URL MP3 hợp lệ (nếu bạn có đường dẫn hợp pháp).</p>
+        <p>Hoặc nhập URL MP3/HLS hợp lệ:</p>
         <input id="mp3Url" type="text" placeholder="https://example.com/song.mp3" />
         <div class="player-buttons">
           <button id="playAudio">Phát</button>
@@ -45,11 +46,18 @@
         </div>
         <audio id="audio" controls preload="none"></audio>
       </div>
+
+      <div class="soundcloud-embed">
+        <p>Nhúng SoundCloud:</p>
+        <input id="soundCloudUrl" type="text" placeholder="https://soundcloud.com/artist/track" />
+        <button id="embedSoundCloud">Nhúng SoundCloud</button>
+        <div id="soundCloudContainer"></div>
+      </div>
     </section>
   </main>
 
   <footer>
-    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Nhạc Zing mở trên trang chính thức.</small>
+    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Trình phát nhạc sử dụng các nguồn hợp pháp.</small>
   </footer>
 
   <script src="app.js"></script>
