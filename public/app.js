@@ -7,7 +7,15 @@ const wsStatusEl = document.getElementById("wsStatus");
 const searchResultsEl = document.getElementById("searchResults");
 const articleContentEl = document.getElementById("articleContent");
 
+const radioListEl = document.getElementById("radioList");
+const radioNowPlayingEl = document.getElementById("radioNowPlaying");
+const radioPlayerEl = document.getElementById("radioPlayer");
+const stopRadioBtn = document.getElementById("stopRadio");
+
 let ws = null;
+let radioStations = [];
+let currentRadioId = null;
+let hlsInstance = null;
 
 // Load categories
 async function loadCategories() {
@@ -22,6 +30,7 @@ async function loadCategories() {
   });
 }
 loadCategories();
+loadRadios();
 
 // Load news
 async function loadNews() {
@@ -66,6 +75,10 @@ function sanitize(str) {
 
 // Events
 loadNewsBtn.addEventListener("click", loadNews);
+
+if (stopRadioBtn) {
+  stopRadioBtn.addEventListener("click", stopRadio);
+}
 
 // WebSocket connection
 function connectWebSocket() {
@@ -171,3 +184,116 @@ function renderError(op, message) {
 
 // Initialize WebSocket
 connectWebSocket();
+
+async function loadRadios() {
+  if (!radioListEl) return;
+  radioListEl.innerHTML = '<div class="radio-empty">Đang tải danh sách đài radio...</div>';
+  try {
+    const res = await fetch("/radios.json", { cache: "no-cache" });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    radioStations = await res.json();
+    renderRadios(radioStations);
+  } catch (err) {
+    console.error("Load radios failed:", err);
+    radioListEl.innerHTML = '<div class="radio-empty">Không thể tải danh sách radio. Kiểm tra file public/radios.json.</div>';
+  }
+}
+
+function renderRadios(stations) {
+  if (!radioListEl) return;
+  if (!stations || !stations.length) {
+    radioListEl.innerHTML = '<div class="radio-empty">Chưa cấu hình đài nào.</div>';
+    return;
+  }
+
+  const cards = stations.map((station) => `
+    <div class="radio-card">
+      <h3>${sanitize(station.name)}</h3>
+      <p>${sanitize(station.description || "")}</p>
+      <div class="radio-meta">${sanitize(station.location || "")}</div>
+      <button type="button" data-radio-id="${sanitize(station.id)}">Phát ngay</button>
+    </div>
+  `).join("");
+
+  radioListEl.innerHTML = cards;
+  radioListEl.querySelectorAll("button[data-radio-id]").forEach((btn) => {
+    btn.addEventListener("click", () => playRadio(btn.dataset.radioId));
+  });
+}
+
+function playRadio(radioId) {
+  if (!radioPlayerEl) return;
+  const station = radioStations.find((item) => item.id === radioId);
+  if (!station) return;
+
+  destroyHlsInstance();
+
+  const streamUrl = station.streamUrl;
+  const isHls = /\.m3u8($|\?)/i.test(streamUrl);
+
+  if (isHls) {
+    if (supportsNativeHls()) {
+      radioPlayerEl.src = streamUrl;
+    } else if (window.Hls && Hls.isSupported()) {
+      hlsInstance = new Hls();
+      hlsInstance.loadSource(streamUrl);
+      hlsInstance.attachMedia(radioPlayerEl);
+    } else {
+      renderRadioError("Trình duyệt không hỗ trợ phát HLS. Hãy thử trình duyệt khác.");
+      return;
+    }
+  } else {
+    radioPlayerEl.src = streamUrl;
+  }
+
+  currentRadioId = station.id;
+  updateNowPlaying(`Đang phát: ${station.name}`);
+
+  radioPlayerEl.play().catch((err) => {
+    console.error("Radio play failed:", err);
+    renderRadioError("Không thể phát đài. Hãy thử lại hoặc chọn đài khác.");
+  });
+}
+
+function stopRadio() {
+  if (!radioPlayerEl) return;
+  radioPlayerEl.pause();
+  radioPlayerEl.removeAttribute("src");
+  radioPlayerEl.load();
+  updateNowPlaying("Chưa phát đài nào");
+  currentRadioId = null;
+  destroyHlsInstance();
+}
+
+function supportsNativeHls() {
+  if (!radioPlayerEl || typeof radioPlayerEl.canPlayType !== "function") return false;
+  const canPlay = radioPlayerEl.canPlayType("application/vnd.apple.mpegurl");
+  return canPlay === "probably" || canPlay === "maybe";
+}
+
+function updateNowPlaying(text) {
+  if (radioNowPlayingEl) {
+    radioNowPlayingEl.textContent = text;
+  }
+}
+
+function renderRadioError(message) {
+  updateNowPlaying(message);
+}
+
+function destroyHlsInstance() {
+  if (hlsInstance) {
+    hlsInstance.destroy();
+    hlsInstance = null;
+  }
+}
+
+if (radioPlayerEl) {
+  radioPlayerEl.addEventListener("error", () => {
+    if (currentRadioId) {
+      renderRadioError("Không phát được đài vừa chọn. Kiểm tra kết nối mạng.");
+    }
+  });
+}

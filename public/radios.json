@@ -1,0 +1,42 @@
+[
+  {
+    "id": "vov1",
+    "name": "VOV1 - Thời sự Chính trị",
+    "description": "Tin tức, chính trị và thời sự tổng hợp từ Đài Tiếng nói Việt Nam.",
+    "location": "Toàn quốc",
+    "streamUrl": "https://stream.vovmedia.vn/vovlive/vov1.sdp_aac/playlist.m3u8",
+    "website": "https://vov.vn"
+  },
+  {
+    "id": "vov2",
+    "name": "VOV2 - Văn hóa Xã hội",
+    "description": "Giáo dục, khoa học, văn hóa và đời sống xã hội.",
+    "location": "Toàn quốc",
+    "streamUrl": "https://stream.vovmedia.vn/vovlive/vov2.sdp_aac/playlist.m3u8",
+    "website": "https://vov.vn"
+  },
+  {
+    "id": "vov3",
+    "name": "VOV3 - Âm nhạc Giải trí",
+    "description": "Các chương trình âm nhạc và giải trí 24/7.",
+    "location": "Toàn quốc",
+    "streamUrl": "https://stream.vovmedia.vn/vovlive/vov3.sdp_aac/playlist.m3u8",
+    "website": "https://vov.vn"
+  },
+  {
+    "id": "vovgthn",
+    "name": "VOV Giao thông Hà Nội",
+    "description": "Thông tin giao thông trực tiếp tại khu vực Hà Nội và miền Bắc.",
+    "location": "Hà Nội",
+    "streamUrl": "https://stream.vovmedia.vn/vovlive/vovgthn.sdp_aac/playlist.m3u8",
+    "website": "https://vovgiaothong.vn"
+  },
+  {
+    "id": "vovgthcm",
+    "name": "VOV Giao thông TP.HCM",
+    "description": "Cập nhật giao thông và đời sống đô thị khu vực phía Nam.",
+    "location": "TP.HCM",
+    "streamUrl": "https://stream.vovmedia.vn/vovlive/vovgthcm.sdp_aac/playlist.m3u8",
+    "website": "https://vovgiaothong.vn"
+  }
+]

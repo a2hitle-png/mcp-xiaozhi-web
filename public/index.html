@@ -42,12 +42,27 @@
         <div id="articleContent"></div>
       </div>
     </section>
+
+    <section id="radio" class="radio-block">
+      <div class="radio-header">
+        <h2>Nghe Radio Trực Tuyến</h2>
+        <p>Chọn đài phát thanh yêu thích và phát trực tiếp ngay trên trình duyệt.</p>
+      </div>
+      <div id="radioList" class="radio-list"></div>
+      <div class="radio-player">
+        <div id="radioNowPlaying" class="radio-now-playing">Chưa phát đài nào</div>
+        <audio id="radioPlayer" controls preload="none" crossorigin="anonymous"></audio>
+        <button id="stopRadio" type="button">Dừng phát</button>
+        <small class="radio-note">Một số đài yêu cầu hỗ trợ HLS. Trình duyệt sẽ sử dụng Hls.js nếu cần.</small>
+      </div>
+    </section>
   </main>
 
   <footer>
     <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Tìm kiếm sử dụng Google Custom Search Engine.</small>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
