@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCP Xiaozhi Web · Tin Thanh Niên & Trình phát nhạc</title>
+  <title>MCP Xiaozhi Web · Tin Thanh Niên & SoundCloud Player</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>MCP Xiaozhi Web</h1>
-    <p>Đọc tin Thanh Niên và trình phát nhạc hợp pháp</p>
+    <p>Đọc tin Thanh Niên và SoundCloud Player</p>
   </header>
 
   <main>
@@ -28,41 +28,20 @@
     </section>
 
     <section id="music">
-      <h2>Trình phát nhạc</h2>
+      <h2>SoundCloud Player (điều khiển từ chatbot)</h2>
+      <div id="wsStatus" class="ws-status">WebSocket: Đang kết nối...</div>
       <div class="controls">
-        <label for="trackSelect">Chọn bài hát từ playlist</label>
-        <select id="trackSelect">
-          <option value="">-- Chọn bài hát --</option>
-        </select>
+        <button id="unlockAutoplay">Bắt đầu phát (mở khoá autoplay)</button>
       </div>
-
-      <div class="player">
-        <p>Hoặc nhập URL MP3/HLS hợp lệ:</p>
-        <input id="mp3Url" type="text" placeholder="https://example.com/song.mp3" />
-        <div class="player-buttons">
-          <button id="playAudio">Phát</button>
-          <button id="pauseAudio">Tạm dừng</button>
-          <button id="stopAudio">Dừng</button>
-        </div>
-        <audio id="audio" controls preload="none"></audio>
-      </div>
-
-      <div class="zing-embed">
-        <p>Nhúng Zing MP3 Playlist:</p>
-        <div class="controls">
-          <label for="zingPlaylistSelect">Chọn playlist</label>
-          <select id="zingPlaylistSelect">
-            <option value="">-- Chọn playlist --</option>
-          </select>
-        </div>
-        <div id="zingContainer"></div>
-      </div>
+      <div id="scEmbedContainer"></div>
     </section>
   </main>
 
   <footer>
-    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Trình phát nhạc sử dụng các nguồn hợp pháp.</small>
+    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Trình phát nhạc sử dụng SoundCloud embed.</small>
   </footer>
+
+  <script src="https://w.soundcloud.com/player/api.js"></script>
 
   <script src="app.js"></script>
 </body>

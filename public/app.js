@@ -3,15 +3,13 @@ const limitEl = document.getElementById("limit");
 const loadNewsBtn = document.getElementById("loadNews");
 const newsListEl = document.getElementById("newsList");
 
-const trackSelectEl = document.getElementById("trackSelect");
-const audioEl = document.getElementById("audio");
-const mp3UrlEl = document.getElementById("mp3Url");
-const playAudioBtn = document.getElementById("playAudio");
-const pauseAudioBtn = document.getElementById("pauseAudio");
-const stopAudioBtn = document.getElementById("stopAudio");
+const wsStatusEl = document.getElementById("wsStatus");
+const unlockAutoplayBtn = document.getElementById("unlockAutoplay");
+const scEmbedContainerEl = document.getElementById("scEmbedContainer");
 
-const zingPlaylistSelectEl = document.getElementById("zingPlaylistSelect");
-const zingContainerEl = document.getElementById("zingContainer");
+let scWidget = null;
+let autoplayUnlocked = false;
+let ws = null;
 
 // Load categories
 async function loadCategories() {
@@ -26,25 +24,6 @@ async function loadCategories() {
   });
 }
 loadCategories();
-
-// Load playlist from tracks.json
-async function loadPlaylist() {
-  try {
-    const res = await fetch("/tracks.json");
-    const tracks = await res.json();
-    trackSelectEl.innerHTML = '<option value="">-- Chọn bài hát --</option>';
-    tracks.forEach(track => {
-      const opt = document.createElement("option");
-      opt.value = track.url;
-      opt.textContent = `${track.title} - ${track.artist}`;
-      opt.dataset.license = track.license || "";
-      trackSelectEl.appendChild(opt);
-    });
-  } catch (e) {
-    console.error("Failed to load playlist:", e);
-  }
-}
-loadPlaylist();
 
 // Load news
 async function loadNews() {
@@ -90,79 +69,119 @@ function sanitize(str) {
 // Events
 loadNewsBtn.addEventListener("click", loadNews);
 
-// Track select change - update URL input
-trackSelectEl.addEventListener("change", () => {
-  const url = trackSelectEl.value;
-  if (url) {
-    mp3UrlEl.value = url;
-  }
-});
+// SoundCloud player functions
+function createSoundCloudIframe(trackUrl) {
+  const iframe = document.createElement("iframe");
+  iframe.id = "scPlayer";
+  iframe.width = "100%";
+  iframe.height = "166";
+  iframe.setAttribute("allow", "autoplay");
+  iframe.style.border = "none";
+  iframe.style.borderRadius = "8px";
+  const encodedUrl = encodeURIComponent(trackUrl);
+  iframe.src = `https://w.soundcloud.com/player/?url=${encodedUrl}&auto_play=true&show_artwork=true`;
+  return iframe;
+}
 
-// Audio controls
-playAudioBtn.addEventListener("click", async () => {
-  const url = mp3UrlEl.value.trim();
-  if (!url) return alert("Nhập URL mp3 hợp lệ hoặc chọn bài hát từ playlist");
-  if (audioEl.src !== url) audioEl.src = url;
-  try {
-    await audioEl.play();
-  } catch (e) {
-    alert("Trình duyệt chặn autoplay hoặc URL không hợp lệ.");
-  }
-});
-pauseAudioBtn.addEventListener("click", () => audioEl.pause());
-stopAudioBtn.addEventListener("click", () => {
-  audioEl.pause();
-  audioEl.currentTime = 0;
-});
+function loadSoundCloudTrack(trackUrl) {
+  scEmbedContainerEl.innerHTML = "";
+  const iframe = createSoundCloudIframe(trackUrl);
+  scEmbedContainerEl.appendChild(iframe);
 
-// Load Zing playlists from zing-playlists.json
-async function loadZingPlaylists() {
-  try {
-    const res = await fetch("/zing-playlists.json");
-    const playlists = await res.json();
-    zingPlaylistSelectEl.innerHTML = '<option value="">-- Chọn playlist --</option>';
-    playlists.forEach(playlist => {
-      const opt = document.createElement("option");
-      opt.value = playlist.src;
-      opt.textContent = playlist.title;
-      zingPlaylistSelectEl.appendChild(opt);
+  // Initialize SoundCloud Widget API
+  if (typeof SC !== "undefined" && SC.Widget) {
+    scWidget = SC.Widget(iframe);
+    scWidget.bind(SC.Widget.Events.READY, () => {
+      if (autoplayUnlocked) {
+        scWidget.play();
+      }
     });
-  } catch (e) {
-    console.error("Failed to load Zing playlists:", e);
+    scWidget.bind(SC.Widget.Events.ERROR, (e) => {
+      console.error("SoundCloud error:", e);
+    });
   }
 }
-loadZingPlaylists();
 
-// Zing playlist embedding
-zingPlaylistSelectEl.addEventListener("change", () => {
-  const src = zingPlaylistSelectEl.value;
-  if (!src) {
-    zingContainerEl.innerHTML = "";
-    return;
+// Unlock autoplay button
+unlockAutoplayBtn.addEventListener("click", () => {
+  autoplayUnlocked = true;
+  unlockAutoplayBtn.disabled = true;
+  unlockAutoplayBtn.textContent = "Autoplay đã mở khoá";
+  unlockAutoplayBtn.style.opacity = "0.6";
+  
+  // If there's already a widget, try to play
+  if (scWidget) {
+    scWidget.play();
   }
-  
-  // Validate that the src is a valid Zing MP3 embed URL
-  let parsedUrl;
-  try {
-    parsedUrl = new URL(src);
-  } catch {
-    zingContainerEl.innerHTML = "";
-    return;
-  }
-  
-  if (parsedUrl.hostname !== "zingmp3.vn" || !parsedUrl.pathname.startsWith("/embed/album/")) {
-    zingContainerEl.innerHTML = "";
-    return;
-  }
-  
-  const iframe = document.createElement("iframe");
-  iframe.src = src;
-  iframe.width = "100%";
-  iframe.height = "400";
-  iframe.style.border = "none";
-  iframe.allowFullscreen = true;
-  iframe.allow = "autoplay; clipboard-write; encrypted-media; picture-in-picture";
-  
-  zingContainerEl.innerHTML = "";
-  zingContainerEl.appendChild(iframe);
 });
+
+// WebSocket connection
+function connectWebSocket() {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  
+  ws = new WebSocket(wsUrl);
+
+  ws.onopen = () => {
+    wsStatusEl.textContent = "WebSocket: Đã kết nối ✓";
+    wsStatusEl.classList.remove("disconnected");
+    wsStatusEl.classList.add("connected");
+  };
+
+  ws.onclose = () => {
+    wsStatusEl.textContent = "WebSocket: Đã ngắt kết nối";
+    wsStatusEl.classList.remove("connected");
+    wsStatusEl.classList.add("disconnected");
+    // Reconnect after 3 seconds
+    setTimeout(connectWebSocket, 3000);
+  };
+
+  ws.onerror = (err) => {
+    console.error("WebSocket error:", err);
+    wsStatusEl.textContent = "WebSocket: Lỗi kết nối";
+    wsStatusEl.classList.remove("connected");
+    wsStatusEl.classList.add("disconnected");
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      handleWebSocketMessage(data);
+    } catch (e) {
+      console.error("Invalid WebSocket message:", e);
+    }
+  };
+}
+
+function handleWebSocketMessage(data) {
+  // Handle play command with SoundCloud URL
+  if (data.action === "play" && data.url) {
+    loadSoundCloudTrack(data.url);
+  }
+  // Handle pause command
+  else if (data.action === "pause" && scWidget) {
+    scWidget.pause();
+  }
+  // Handle resume command
+  else if (data.action === "resume" && scWidget) {
+    scWidget.play();
+  }
+  // Handle stop command
+  else if (data.action === "stop" && scWidget) {
+    scWidget.pause();
+    scWidget.seekTo(0);
+  }
+}
+
+// Check for sc= query parameter
+function checkQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const scUrl = params.get("sc");
+  if (scUrl) {
+    loadSoundCloudTrack(scUrl);
+  }
+}
+
+// Initialize WebSocket and check query params
+connectWebSocket();
+checkQueryParams();

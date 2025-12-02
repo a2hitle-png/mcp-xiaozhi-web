@@ -2,7 +2,12 @@ import { Options } from 'xml2js';
 import { RequestOptions } from 'https';
 
 declare namespace Parser {
-  type CustomFieldItem<U> = keyof U | (string | { keepArray: boolean })[]
+  export interface Headers {
+    readonly Accept?: string;
+    readonly 'User-Agent'?: string;
+  }
+
+  type CustomFieldItem<U> = keyof U | { keepArray: boolean }
     
   export interface CustomFields<T, U> {
     readonly feed?: Array<keyof T>;
@@ -12,7 +17,7 @@ declare namespace Parser {
   export interface ParserOptions<T, U> {
     readonly xml2js?: Options;
     readonly requestOptions?: RequestOptions;
-    readonly headers?: Record<string, string>;
+    readonly headers?: Headers;
     readonly defaultRSS?: number;
     readonly maxRedirects?: number;
     readonly customFields?: CustomFields<T, U>;

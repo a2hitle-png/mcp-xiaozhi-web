@@ -1,6 +1,8 @@
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import { WebSocketServer } from "ws";
 import { PORT, THANHNIEN_RSS } from "./config.js";
 import { fetchFeed } from "./rss.js";
 
@@ -8,6 +10,9 @@ const app = express();
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.static("public"));
+
+// Create HTTP server to share between Express and WebSocket
+const server = createServer(app);
 
 // Health check
 app.get("/api/health", (req, res) => res.json({ ok: true, service: "mcp-xiaozhi-web" }));
@@ -47,6 +52,44 @@ app.get("/mcp/news/:category", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// WebSocket server on /ws path
+const wss = new WebSocketServer({ server, path: "/ws" });
+
+// Keep track of all connected clients
+const clients = new Set();
+
+wss.on("connection", (ws) => {
+  clients.add(ws);
+  console.log("WebSocket client connected");
+
+  ws.on("message", (data) => {
+    // Broadcast any JSON message from one client to all others
+    try {
+      const message = data.toString();
+      // Validate it's valid JSON
+      JSON.parse(message);
+      // Broadcast to all other clients
+      for (const client of clients) {
+        if (client !== ws && client.readyState === 1) {
+          client.send(message);
+        }
+      }
+    } catch (e) {
+      console.error("Invalid message received:", e.message);
+    }
+  });
+
+  ws.on("close", () => {
+    clients.delete(ws);
+    console.log("WebSocket client disconnected");
+  });
+
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err.message);
+    clients.delete(ws);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
