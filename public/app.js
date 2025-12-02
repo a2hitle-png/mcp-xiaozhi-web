@@ -10,9 +10,8 @@ const playAudioBtn = document.getElementById("playAudio");
 const pauseAudioBtn = document.getElementById("pauseAudio");
 const stopAudioBtn = document.getElementById("stopAudio");
 
-const soundCloudUrlEl = document.getElementById("soundCloudUrl");
-const embedSoundCloudBtn = document.getElementById("embedSoundCloud");
-const soundCloudContainerEl = document.getElementById("soundCloudContainer");
+const zingPlaylistSelectEl = document.getElementById("zingPlaylistSelect");
+const zingContainerEl = document.getElementById("zingContainer");
 
 // Load categories
 async function loadCategories() {
@@ -46,6 +45,26 @@ async function loadPlaylist() {
   }
 }
 loadPlaylist();
+
+// Load Zing playlists from zing-playlists.json
+async function loadZingPlaylists() {
+  try {
+    const res = await fetch("/zing-playlists.json");
+    const playlists = await res.json();
+    zingPlaylistSelectEl.innerHTML = '<option value="">-- Chọn playlist --</option>';
+    playlists.forEach(playlist => {
+      const opt = document.createElement("option");
+      opt.value = playlist.src;
+      opt.textContent = playlist.title;
+      opt.dataset.id = playlist.id;
+      opt.dataset.kind = playlist.kind;
+      zingPlaylistSelectEl.appendChild(opt);
+    });
+  } catch (e) {
+    console.error("Failed to load Zing playlists:", e);
+  }
+}
+loadZingPlaylists();
 
 // Load news
 async function loadNews() {
@@ -116,50 +135,22 @@ stopAudioBtn.addEventListener("click", () => {
   audioEl.currentTime = 0;
 });
 
-// SoundCloud widget configuration
-const SOUNDCLOUD_WIDGET_CONFIG = {
-  color: "%23ff5500",
-  auto_play: false,
-  hide_related: false,
-  show_comments: true,
-  show_user: true,
-  show_reposts: false,
-  show_teaser: true,
-  visual: true
-};
-
-// SoundCloud embedding
-embedSoundCloudBtn.addEventListener("click", () => {
-  const url = soundCloudUrlEl.value.trim();
-  if (!url) return alert("Nhập URL SoundCloud hợp lệ (ví dụ: https://soundcloud.com/artist/track)");
-  
-  // Validate SoundCloud URL with proper URL parsing
-  let parsedUrl;
-  try {
-    parsedUrl = new URL(url);
-  } catch {
-    return alert("URL không hợp lệ. Vui lòng nhập URL đúng định dạng.");
+// Zing playlist embed
+zingPlaylistSelectEl.addEventListener("change", () => {
+  const src = zingPlaylistSelectEl.value;
+  if (!src) {
+    zingContainerEl.innerHTML = "";
+    return;
   }
   
-  // Ensure the hostname is exactly soundcloud.com or a subdomain
-  if (parsedUrl.hostname !== "soundcloud.com" && !parsedUrl.hostname.endsWith(".soundcloud.com")) {
-    return alert("URL phải là đường dẫn SoundCloud (ví dụ: https://soundcloud.com/artist/track)");
-  }
-  
-  const encodedUrl = encodeURIComponent(url);
-  const configParams = Object.entries(SOUNDCLOUD_WIDGET_CONFIG)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("&");
-  const widgetUrl = `https://w.soundcloud.com/player/?url=${encodedUrl}&${configParams}`;
-  
-  soundCloudContainerEl.innerHTML = `
+  zingContainerEl.innerHTML = `
     <iframe 
       width="100%" 
-      height="166" 
+      height="400" 
       scrolling="no" 
       frameborder="no" 
       allow="autoplay" 
-      src="${widgetUrl}">
+      src="${src}">
     </iframe>
   `;
 });
