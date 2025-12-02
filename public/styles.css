@@ -81,11 +81,7 @@ button:hover { filter: brightness(1.05); }
 }
 .news-actions a:hover { text-decoration: underline; }
 
-.player { margin-top: 12px; }
-.player-buttons { display: flex; gap: 8px; margin-top: 8px; }
-audio { width: 100%; margin-top: 8px; }
-.zing-embed { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-.zing-embed p { margin: 0 0 8px 0; }
+.zing-embed { margin-top: 12px; }
 .zing-embed .controls { margin-bottom: 12px; }
 #zingContainer { margin-top: 12px; }
 #zingContainer iframe { border-radius: 8px; }

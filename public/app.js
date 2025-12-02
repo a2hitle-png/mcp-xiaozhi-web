@@ -3,13 +3,6 @@ const limitEl = document.getElementById("limit");
 const loadNewsBtn = document.getElementById("loadNews");
 const newsListEl = document.getElementById("newsList");
 
-const trackSelectEl = document.getElementById("trackSelect");
-const audioEl = document.getElementById("audio");
-const mp3UrlEl = document.getElementById("mp3Url");
-const playAudioBtn = document.getElementById("playAudio");
-const pauseAudioBtn = document.getElementById("pauseAudio");
-const stopAudioBtn = document.getElementById("stopAudio");
-
 const zingPlaylistSelectEl = document.getElementById("zingPlaylistSelect");
 const zingContainerEl = document.getElementById("zingContainer");
 
@@ -26,25 +19,6 @@ async function loadCategories() {
   });
 }
 loadCategories();
-
-// Load playlist from tracks.json
-async function loadPlaylist() {
-  try {
-    const res = await fetch("/tracks.json");
-    const tracks = await res.json();
-    trackSelectEl.innerHTML = '<option value="">-- Chọn bài hát --</option>';
-    tracks.forEach(track => {
-      const opt = document.createElement("option");
-      opt.value = track.url;
-      opt.textContent = `${track.title} - ${track.artist}`;
-      opt.dataset.license = track.license || "";
-      trackSelectEl.appendChild(opt);
-    });
-  } catch (e) {
-    console.error("Failed to load playlist:", e);
-  }
-}
-loadPlaylist();
 
 // Load news
 async function loadNews() {
@@ -89,31 +63,6 @@ function sanitize(str) {
 
 // Events
 loadNewsBtn.addEventListener("click", loadNews);
-
-// Track select change - update URL input
-trackSelectEl.addEventListener("change", () => {
-  const url = trackSelectEl.value;
-  if (url) {
-    mp3UrlEl.value = url;
-  }
-});
-
-// Audio controls
-playAudioBtn.addEventListener("click", async () => {
-  const url = mp3UrlEl.value.trim();
-  if (!url) return alert("Nhập URL mp3 hợp lệ hoặc chọn bài hát từ playlist");
-  if (audioEl.src !== url) audioEl.src = url;
-  try {
-    await audioEl.play();
-  } catch (e) {
-    alert("Trình duyệt chặn autoplay hoặc URL không hợp lệ.");
-  }
-});
-pauseAudioBtn.addEventListener("click", () => audioEl.pause());
-stopAudioBtn.addEventListener("click", () => {
-  audioEl.pause();
-  audioEl.currentTime = 0;
-});
 
 // Load Zing playlists from zing-playlists.json
 async function loadZingPlaylists() {
