@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCP Xiaozhi Web · Tin Thanh Niên & SoundCloud Player</title>
+  <title>MCP Xiaozhi Web · Tin Thanh Niên & Google Search</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>MCP Xiaozhi Web</h1>
-    <p>Đọc tin Thanh Niên và SoundCloud Player</p>
+    <p>Đọc tin Thanh Niên và tìm kiếm Google</p>
   </header>
 
-  <main>
+  <main class="content-grid">
     <section id="news">
       <h2>Tin Thanh Niên</h2>
       <div class="controls">
@@ -27,21 +27,26 @@
       <ul id="newsList"></ul>
     </section>
 
-    <section id="music">
-      <h2>SoundCloud Player (điều khiển từ chatbot)</h2>
+    <section id="google-search" class="search-block">
+      <h2>Tìm kiếm Google</h2>
       <div id="wsStatus" class="ws-status">WebSocket: Đang kết nối...</div>
-      <div class="controls">
-        <button id="unlockAutoplay">Bắt đầu phát (mở khoá autoplay)</button>
+      
+      <!-- Google CSE Search Box -->
+      <div class="gcse-search"></div>
+      <script async src="https://cse.google.com/cse.js?cx=a3820d0d2ddab41a4"></script>
+      
+      <!-- Debug section for WebSocket results -->
+      <div id="debugSection" class="debug-section">
+        <h3>Kết quả từ WebSocket (Debug)</h3>
+        <div id="searchResults"></div>
+        <div id="articleContent"></div>
       </div>
-      <div id="scEmbedContainer"></div>
     </section>
   </main>
 
   <footer>
-    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Trình phát nhạc sử dụng SoundCloud embed.</small>
+    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Tìm kiếm sử dụng Google Custom Search Engine.</small>
   </footer>
-
-  <script src="https://w.soundcloud.com/player/api.js"></script>
 
   <script src="app.js"></script>
 </body>

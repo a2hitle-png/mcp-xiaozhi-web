@@ -5,6 +5,8 @@ import morgan from "morgan";
 import WebSocket, { WebSocketServer } from "ws";
 import { PORT, THANHNIEN_RSS } from "./config.js";
 import { fetchFeed } from "./rss.js";
+import { searchGoogle, isGoogleSearchConfigured } from "./googleSearch.js";
+import { extractArticle, splitIntoChunks } from "./extract.js";
 
 const app = express();
 app.use(cors());
@@ -52,30 +54,62 @@ app.get("/mcp/news/:category", async (req, res) => {
   }
 });
 
+// Google Search API endpoint
+app.get("/api/search/google", async (req, res) => {
+  try {
+    if (!isGoogleSearchConfigured()) {
+      return res.status(503).json({ 
+        error: "Google Search not configured. Please set GOOGLE_CSE_API_KEY and GOOGLE_CSE_CX environment variables." 
+      });
+    }
+
+    const { q, topK = "5" } = req.query;
+    if (!q) {
+      return res.status(400).json({ error: "Missing query parameter 'q'" });
+    }
+
+    const results = await searchGoogle(q, parseInt(topK, 10));
+    res.json({ q, results });
+  } catch (err) {
+    console.error("Google Search error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Article extraction API endpoint
+app.get("/api/article/extract", async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: "Missing query parameter 'url'" });
+    }
+
+    const article = await extractArticle(url);
+    res.json(article);
+  } catch (err) {
+    console.error("Article extraction error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // WebSocket server on /ws path
 const wss = new WebSocketServer({ server, path: "/ws" });
 
-// Keep track of all connected clients
-const clients = new Set();
+// Keep track of all connected clients with their search results
+const clients = new Map();
 
 wss.on("connection", (ws) => {
-  clients.add(ws);
+  // Store client state
+  clients.set(ws, { results: [] });
   console.log("WebSocket client connected");
 
-  ws.on("message", (data) => {
-    // Broadcast any JSON message from one client to all others
+  ws.on("message", async (data) => {
     try {
-      const message = data.toString();
-      // Validate it's valid JSON
-      JSON.parse(message);
-      // Broadcast to all other clients
-      for (const client of clients) {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-          client.send(message);
-        }
-      }
+      const message = JSON.parse(data.toString());
+      await handleWebSocketMessage(ws, message);
     } catch (e) {
       console.error("Invalid message received:", e.message);
+      sendError(ws, "parse", "Invalid JSON message");
     }
   });
 
@@ -90,6 +124,153 @@ wss.on("connection", (ws) => {
   });
 });
 
+/**
+ * Handle incoming WebSocket messages
+ */
+async function handleWebSocketMessage(ws, message) {
+  const { type } = message;
+
+  switch (type) {
+    case "hello":
+      // Simple hello/handshake
+      ws.send(JSON.stringify({ type: "hello_ack", role: message.role || "unknown" }));
+      break;
+
+    case "search_google":
+      await handleSearchGoogle(ws, message);
+      break;
+
+    case "read_result":
+      await handleReadResult(ws, message);
+      break;
+
+    case "read_url":
+      await handleReadUrl(ws, message);
+      break;
+
+    default:
+      // Unknown message type - ignore silently or send error
+      console.log("Unknown message type:", type);
+      break;
+  }
+}
+
+/**
+ * Handle Google search request
+ */
+async function handleSearchGoogle(ws, message) {
+  try {
+    if (!isGoogleSearchConfigured()) {
+      sendError(ws, "search_google", "Google Search not configured");
+      return;
+    }
+
+    const { q, topK = 5 } = message;
+    if (!q) {
+      sendError(ws, "search_google", "Missing query parameter 'q'");
+      return;
+    }
+
+    const results = await searchGoogle(q, topK);
+    
+    // Store results for this client
+    const clientState = clients.get(ws);
+    if (clientState) {
+      clientState.results = results;
+    }
+
+    ws.send(JSON.stringify({ type: "search_results", q, results }));
+  } catch (err) {
+    console.error("Search error:", err.message);
+    sendError(ws, "search_google", err.message);
+  }
+}
+
+/**
+ * Handle read result by index
+ */
+async function handleReadResult(ws, message) {
+  try {
+    const { index } = message;
+    const clientState = clients.get(ws);
+    
+    if (!clientState || !clientState.results || clientState.results.length === 0) {
+      sendError(ws, "read_result", "No search results available. Please search first.");
+      return;
+    }
+
+    const idx = parseInt(index, 10);
+    if (isNaN(idx) || idx < 0 || idx >= clientState.results.length) {
+      sendError(ws, "read_result", `Invalid index. Must be between 0 and ${clientState.results.length - 1}`);
+      return;
+    }
+
+    const result = clientState.results[idx];
+    await sendArticleContent(ws, result.link);
+  } catch (err) {
+    console.error("Read result error:", err.message);
+    sendError(ws, "read_result", err.message);
+  }
+}
+
+/**
+ * Handle read URL directly
+ */
+async function handleReadUrl(ws, message) {
+  try {
+    const { url } = message;
+    if (!url) {
+      sendError(ws, "read_url", "Missing 'url' parameter");
+      return;
+    }
+
+    await sendArticleContent(ws, url);
+  } catch (err) {
+    console.error("Read URL error:", err.message);
+    sendError(ws, "read_url", err.message);
+  }
+}
+
+/**
+ * Extract and send article content (as chunks if long)
+ */
+async function sendArticleContent(ws, url) {
+  const article = await extractArticle(url);
+  const chunks = splitIntoChunks(article.contentText, 1000);
+
+  if (chunks.length === 1) {
+    // Send as single message
+    ws.send(JSON.stringify({
+      type: "article_text",
+      title: article.title,
+      contentText: article.contentText,
+      url
+    }));
+  } else {
+    // Send as multiple chunks
+    for (let i = 0; i < chunks.length; i++) {
+      ws.send(JSON.stringify({
+        type: "article_chunk",
+        title: article.title,
+        chunk: chunks[i],
+        chunkIndex: i,
+        totalChunks: chunks.length,
+        url
+      }));
+    }
+  }
+}
+
+/**
+ * Send error message to client
+ */
+function sendError(ws, op, message) {
+  ws.send(JSON.stringify({ type: "error", op, message }));
+}
+
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+  if (!isGoogleSearchConfigured()) {
+    console.log("Warning: Google Search API not configured. Set GOOGLE_CSE_API_KEY and GOOGLE_CSE_CX environment variables.");
+  }
 });
