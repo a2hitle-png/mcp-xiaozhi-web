@@ -4,6 +4,7 @@ Máy chủ web hỗ trợ chatbot Xiaozhi (ESP32-S3) với các tính năng:
 - **Tin Thanh Niên**: Đọc tin tức từ các chuyên mục RSS của Thanh Niên
 - **Google Custom Search Engine (CSE)**: Tìm kiếm Google qua API
 - **WebSocket**: Hỗ trợ voice search và đọc bài viết cho chatbot
+- **Nghe Radio**: Phát trực tuyến các đài VOV phổ biến với hỗ trợ HLS (Hls.js)
 
 ## Tính năng
 
@@ -68,6 +69,25 @@ Truy cập: http://localhost:3000
 4. **Deploy** hoặc **Redeploy** để áp dụng
 
 > ⚠️ **Bảo mật**: KHÔNG commit API key vào repository. Luôn sử dụng biến môi trường.
+
+## Radio trực tuyến
+
+Danh sách đài được lưu tại `public/radios.json`. Mỗi phần tử gồm:
+
+```jsonc
+{
+   "id": "vov1",          // duy nhất, dùng cho data-radio-id
+   "name": "VOV1 - Thời sự",
+   "description": "Mô tả ngắn",
+   "location": "Toàn quốc",
+   "streamUrl": "https://.../playlist.m3u8", // HLS hoặc MP3/AAC trực tiếp
+   "website": "https://..."                 // tùy chọn
+}
+```
+
+- Nếu stream sử dụng HLS (`.m3u8`), trình duyệt sẽ tự động kích hoạt **Hls.js** (qua CDN) để phát trên Chrome/Edge/Firefox.
+- Bạn có thể thêm/bớt đài bằng cách cập nhật file JSON rồi redeploy. Không cần chỉnh code frontend/backend.
+- Hãy đảm bảo đường dẫn stream hợp pháp và cho phép phát ở client (CORS).
 
 ## Kiểm thử với ESP32
 
