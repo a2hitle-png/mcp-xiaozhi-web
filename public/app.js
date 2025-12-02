@@ -77,6 +77,14 @@ function sanitize(str) {
 
 // Zing search handler
 let zingTab = null;
+
+function closeZingTab() {
+  if (zingTab && !zingTab.closed) {
+    zingTab.close();
+  }
+  zingTab = null;
+}
+
 async function openZingSearch() {
   const q = songQueryEl.value.trim();
   if (!q) {
@@ -93,16 +101,29 @@ async function openZingSearch() {
   try {
     const res = await fetch(`/api/zing/search?q=${encodeURIComponent(q)}`);
     const data = await res.json();
+    
+    // Validate that URL is from trusted Zing domain before navigating
     if (data.url && zingTab) {
-      zingTab.location = data.url;
-      setStatus(zingStatusEl, "Đã mở Zing MP3", "success");
+      try {
+        const urlObj = new URL(data.url);
+        if (urlObj.hostname === "zingmp3.vn") {
+          zingTab.location = data.url;
+          setStatus(zingStatusEl, "Đã mở Zing MP3", "success");
+        } else {
+          setStatus(zingStatusEl, "URL không hợp lệ", "error");
+          closeZingTab();
+        }
+      } catch {
+        setStatus(zingStatusEl, "URL không hợp lệ", "error");
+        closeZingTab();
+      }
     } else if (data.error) {
       setStatus(zingStatusEl, data.error, "error");
-      if (zingTab) zingTab.close();
+      closeZingTab();
     }
   } catch (e) {
     setStatus(zingStatusEl, "Lỗi kết nối", "error");
-    if (zingTab) zingTab.close();
+    closeZingTab();
   } finally {
     openZingSearchBtn.disabled = false;
   }

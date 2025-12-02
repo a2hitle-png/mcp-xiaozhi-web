@@ -113,8 +113,17 @@ app.get("/api/audio/check", async (req, res) => {
     clearTimeout(timeoutId);
 
     const contentType = response.headers.get("content-type") || "";
-    const contentLength = response.headers.get("content-length") || null;
+    const contentLength = response.headers.get("content-length");
     const acceptRanges = response.headers.get("accept-ranges") || null;
+
+    // Parse content-length safely
+    let parsedContentLength = null;
+    if (contentLength) {
+      const parsed = parseInt(contentLength, 10);
+      if (!Number.isNaN(parsed)) {
+        parsedContentLength = parsed;
+      }
+    }
 
     const isAudio = contentType.toLowerCase().startsWith("audio/");
 
@@ -123,7 +132,7 @@ app.get("/api/audio/check", async (req, res) => {
       status: response.status,
       headers: {
         contentType,
-        contentLength: contentLength ? parseInt(contentLength, 10) : null,
+        contentLength: parsedContentLength,
         acceptRanges
       },
       isAudio
