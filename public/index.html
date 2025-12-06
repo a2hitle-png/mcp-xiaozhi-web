@@ -1,68 +1,85 @@
-<!doctype html>
-<html lang="vi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MCP Xiaozhi Web · Tin Thanh Niên & Google Search</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Xiaozhi Web</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <h1>MCP Xiaozhi Web</h1>
-    <p>Đọc tin Thanh Niên và tìm kiếm Google</p>
+    <p class="tagline">Your lightweight web companion for MCP Xiaozhi</p>
   </header>
 
   <main class="content-grid">
-    <section id="news">
-      <h2>Tin Thanh Niên</h2>
-      <div class="controls">
-        <label for="category">Chuyên mục</label>
-        <select id="category"></select>
+    <section id="status" class="card">
+      <h2>Status</h2>
+      <p>WebSocket Status: <span id="wsStatus">Disconnected</span></p>
+      <p>Radio Status: <span id="radioStatus">Stopped</span></p>
+    </section>
 
-        <label for="limit">Số tin</label>
-        <input id="limit" type="number" min="1" max="50" value="20" />
-
-        <button id="loadNews">Tải tin</button>
-      </div>
+    <section id="news" class="card">
+      <h2>Latest News</h2>
+      <button id="refreshNews">Refresh News</button>
       <ul id="newsList"></ul>
     </section>
 
-    <section id="google-search" class="search-block">
-      <h2>Tìm kiếm Google</h2>
-      <div id="wsStatus" class="ws-status">WebSocket: Đang kết nối...</div>
-      
-      <!-- Google CSE Search Box -->
-      <div class="gcse-search"></div>
-      <script async src="https://cse.google.com/cse.js?cx=a3820d0d2ddab41a4"></script>
-      
-      <!-- Debug section for WebSocket results -->
-      <div id="debugSection" class="debug-section">
-        <h3>Kết quả từ WebSocket (Debug)</h3>
-        <div id="searchResults"></div>
-        <div id="articleContent"></div>
-      </div>
+    <section id="search" class="card">
+      <h2>Google Search</h2>
+      <input type="text" id="searchQuery" placeholder="Enter search query" />
+      <button id="searchButton">Search</button>
     </section>
 
-    <section id="radio" class="radio-block">
-      <div class="radio-header">
-        <h2>Nghe Radio Trực Tuyến</h2>
-        <p>Chọn đài phát thanh yêu thích và phát trực tiếp ngay trên trình duyệt.</p>
+    <section id="radio" class="card">
+      <h2>Online Radio</h2>
+      <label for="radioUrl">Radio Stream URL:</label>
+      <input type="text" id="radioUrl" placeholder="Enter radio stream URL" />
+      <div class="radio-controls">
+        <button id="playRadio">Play</button>
+        <button id="stopRadio">Stop</button>
       </div>
-      <div id="radioList" class="radio-list"></div>
-      <div class="radio-player">
-        <div id="radioNowPlaying" class="radio-now-playing">Chưa phát đài nào</div>
-        <audio id="radioPlayer" controls preload="none" crossorigin="anonymous"></audio>
-        <button id="stopRadio" type="button">Dừng phát</button>
-        <small class="radio-note">Một số đài yêu cầu hỗ trợ HLS. Trình duyệt sẽ sử dụng Hls.js nếu cần.</small>
+      <audio id="radioPlayer" controls style="width: 100%; margin-top: 0.5rem;"></audio>
+    </section>
+
+    <section id="console" class="card">
+      <h2>Console</h2>
+      <textarea id="consoleLog" readonly></textarea>
+    </section>
+
+    <!-- New music search section -->
+    <section id="music" class="card">
+      <h2>YouTube Music Search</h2>
+      <input
+        type="text"
+        id="musicQuery"
+        placeholder="Enter song, artist, or playlist"
+      />
+      <button id="playMusic">Search &amp; Open</button>
+
+      <!-- Reserved for future embedded playback -->
+      <div id="musicPlayerContainer" style="display: none; margin-top: 0.75rem;">
+        <p id="musicStatus">Ready</p>
+        <iframe
+          id="musicPlayer"
+          width="100%"
+          height="315"
+          src=""
+          title="YouTube music player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
       </div>
     </section>
   </main>
 
-  <footer>
-    <small>Chỉ hiển thị tiêu đề/tóm tắt và liên kết gốc. Tìm kiếm sử dụng Google Custom Search Engine.</small>
+  <footer class="site-footer">
+    <p>
+      MCP Xiaozhi Web &mdash; simple web UI for demos and experiments.
+    </p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
